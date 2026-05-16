@@ -1,0 +1,57 @@
+{
+  "entities": {
+    "userProfile": {
+      "title": "User Profile",
+      "description": "User account information and aggregate collection stats",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "totalOwned": { "type": "number" },
+        "totalRepeated": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "userSticker": {
+      "title": "User Sticker",
+      "description": "Information about a specific sticker owned by a user",
+      "type": "object",
+      "properties": {
+        "stickerId": { "type": "string" },
+        "quantity": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["stickerId", "quantity"]
+    },
+    "tradeProposal": {
+      "title": "Trade Proposal",
+      "description": "A public or targetted trade offer",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string" },
+        "offering": { "type": "array", "items": { "type": "string" } },
+        "wanting": { "type": "array", "items": { "type": "string" } },
+        "status": { "type": "string", "enum": ["open", "closed", "pending"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "offering", "wanting", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "userProfile",
+      "description": "Public and private user profile data"
+    },
+    "/users/{userId}/collection/{stickerId}": {
+      "schema": "userSticker",
+      "description": "The user's actual sticker collection"
+    },
+    "/trades/{tradeId}": {
+      "schema": "tradeProposal",
+      "description": "Global marketplace for trades"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bento-bg: #06080F;
+  --color-bento-card: #121620;
+  --color-bento-border: #1E293B;
+  --color-bento-accent: #F59E0B;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-bento-bg text-slate-100 antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+

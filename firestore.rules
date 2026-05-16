@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isVerified() {
+      return request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // 1. User Profiles
+    match /users/{userId} {
+      function isValidUserProfile(data) {
+        return data.uid == userId && 
+               data.email is string && 
+               data.totalOwned is number &&
+               data.totalRepeated is number;
+      }
+
+      allow get: if isSignedIn();
+      allow list: if isSignedIn(); // Allow searching users for trades
+      allow create: if isOwner(userId) && isValidUserProfile(incoming());
+      allow update: if isOwner(userId) && isValidUserProfile(incoming()) && 
+                    incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'totalOwned', 'totalRepeated']);
+    }
+
+    // 2. Collection
+    match /users/{userId}/collection/{stickerId} {
+      function isValidSticker(data) {
+        return data.stickerId == stickerId && 
+               data.quantity is number && data.quantity >= 0;
+      }
+
+      allow read: if isSignedIn(); // Potentially allow others to see collection for trades matching
+      allow write: if isOwner(userId) && isValidSticker(incoming());
+    }
+
+    // 3. Trades
+    match /trades/{tradeId} {
+      function isValidTrade(data) {
+        return data.ownerId == request.auth.uid && 
+               data.offering is list && data.wanting is list &&
+               data.status in ['open', 'closed', 'pending'];
+      }
+
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidTrade(incoming());
+      allow update: if isSignedIn() && (
+        (isOwner(existing().ownerId) && isValidTrade(incoming())) ||
+        (incoming().diff(existing()).affectedKeys().hasOnly(['status']))
+      );
+      allow delete: if isSignedIn() && isOwner(existing().ownerId);
+    }
+  }
+}

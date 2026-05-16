@@ -1,0 +1,17 @@
+{
+  "name": "Copa Sticker Manager 2026",
+  "short_name": "Copa 2026",
+  "description": "Gerenciador premium de figurinhas da Copa 2026.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#06080F",
+  "theme_color": "#F59E0B",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/5358/5358705.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

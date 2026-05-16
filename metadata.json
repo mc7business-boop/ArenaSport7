@@ -1,0 +1,10 @@
+{
+  "name": "Copa Sticker Manager 2026",
+  "description": "Gerenciador premium de figurinhas da Copa 2026 com IA, sincronização em nuvem e mercado de trocas.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
