@@ -28,11 +28,11 @@ export const StickerItem: React.FC<StickerItemProps> = ({ sticker, onToggle, onA
         "group relative flex flex-col items-center justify-between overflow-hidden rounded-3xl border-2 p-3 transition-all duration-300",
         sticker.owned 
           ? isMythical
-            ? "border-purple-500 bg-gradient-to-br from-slate-900 to-purple-900 shadow-[0_0_20px_rgba(168,85,247,0.3)]"
+            ? "border-purple-500 bg-gradient-to-br from-white to-purple-50 dark:from-slate-900 dark:to-purple-900 shadow-[0_0_20px_rgba(168,85,247,0.3)]"
             : isSpecial 
-              ? "border-yellow-500/50 bg-gradient-to-br from-slate-900 to-amber-900 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
-              : "border-blue-500/50 bg-slate-900" 
-          : "border-slate-800/40 bg-slate-900/40"
+              ? "border-yellow-500/50 bg-gradient-to-br from-white to-amber-50 dark:from-slate-900 dark:to-amber-900 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
+              : "border-blue-500/50 bg-white dark:bg-slate-900" 
+          : "border-slate-200 dark:border-slate-800/40 bg-slate-50 dark:bg-slate-900/40"
       )}
     >
       {/* Rarity Star */}
@@ -44,13 +44,13 @@ export const StickerItem: React.FC<StickerItemProps> = ({ sticker, onToggle, onA
 
       {/* Badge for repeated */}
       {(sticker.quantity ?? 0) > 1 && (
-        <div className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-lg bg-white text-[9px] font-black text-black shadow-lg">
+        <div className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-lg bg-slate-900 dark:bg-white text-[9px] font-black text-white dark:text-black shadow-lg">
           {sticker.quantity}
         </div>
       )}
 
       {/* Team ID */}
-      <div className="mb-1 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none">
+      <div className="mb-1 text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] leading-none">
         {sticker.teamId}
       </div>
 
@@ -58,8 +58,8 @@ export const StickerItem: React.FC<StickerItemProps> = ({ sticker, onToggle, onA
       <div className={cn(
         "text-2xl font-black italic tracking-tighter leading-none mb-2",
         sticker.owned 
-          ? isMythical ? "text-purple-200" : "text-white" 
-          : "text-slate-800"
+          ? isMythical ? "text-purple-600 dark:text-purple-200" : "text-slate-900 dark:text-white" 
+          : "text-slate-200 dark:text-slate-800"
       )}>
         {sticker.number}
       </div>
@@ -67,7 +67,7 @@ export const StickerItem: React.FC<StickerItemProps> = ({ sticker, onToggle, onA
       {/* Name */}
       <div className={cn(
         "text-[8px] font-bold uppercase tracking-tight text-center truncate w-full mb-3",
-        sticker.owned ? "text-slate-400" : "text-slate-700"
+        sticker.owned ? "text-slate-500 dark:text-slate-400" : "text-slate-300 dark:text-slate-700"
       )}>
         {sticker.player}
       </div>
@@ -76,7 +76,7 @@ export const StickerItem: React.FC<StickerItemProps> = ({ sticker, onToggle, onA
       <div className="flex w-full items-center justify-center gap-1 mt-2">
         <button
           onClick={(e) => { e.stopPropagation(); onAddQuantity(sticker.id, -1); }}
-          className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-800/80 text-slate-500 hover:text-red-500 transition-colors backdrop-blur-sm active:scale-90"
+          className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800/80 text-slate-400 dark:text-slate-500 hover:text-red-500 transition-colors backdrop-blur-sm active:scale-90"
         >
           <Minus size={14} strokeWidth={3} />
         </button>
@@ -84,14 +84,14 @@ export const StickerItem: React.FC<StickerItemProps> = ({ sticker, onToggle, onA
           onClick={(e) => { e.stopPropagation(); onToggle(sticker.id); }}
           className={cn(
             "flex h-9 w-9 items-center justify-center rounded-xl transition-all shadow-xl active:scale-95",
-            sticker.owned ? "bg-white text-black" : "bg-yellow-500 text-black border-2 border-yellow-400"
+            sticker.owned ? "bg-slate-900 dark:bg-white text-white dark:text-black" : "bg-yellow-500 text-black border-2 border-yellow-400"
           )}
         >
           {sticker.owned ? <Check size={18} strokeWidth={4} /> : <Plus size={18} strokeWidth={4} />}
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); onAddQuantity(sticker.id, 1); }}
-          className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-800/80 text-slate-500 hover:text-blue-500 transition-colors backdrop-blur-sm active:scale-90"
+          className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800/80 text-slate-400 dark:text-slate-500 hover:text-blue-500 transition-colors backdrop-blur-sm active:scale-90"
         >
           <Plus size={14} strokeWidth={3} />
         </button>

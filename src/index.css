@@ -1,16 +1,35 @@
 @import "tailwindcss";
 
+:root {
+  --bento-bg: #F8FAFC;
+  --bento-card: #FFFFFF;
+  --bento-border: #E2E8F0;
+  --bento-text: #0F172A;
+  --bento-muted: #64748B;
+}
+
+.dark {
+  --bento-bg: #0C101A;
+  --bento-card: #151A28;
+  --bento-border: #232D42;
+  --bento-text: #F1F5F9;
+  --bento-muted: #94A3B8;
+}
+
 @theme {
-  --color-bento-bg: #06080F;
-  --color-bento-card: #121620;
-  --color-bento-border: #1E293B;
-  --color-bento-accent: #F59E0B;
+  --color-bento-bg: var(--bento-bg);
+  --color-bento-card: var(--bento-card);
+  --color-bento-border: var(--bento-border);
+  --color-bento-text: var(--bento-text);
+  --color-bento-muted: var(--bento-muted);
+  --color-bento-accent: #EAB308;
+  
   --font-sans: "Inter", system-ui, sans-serif;
 }
 
 @layer base {
   body {
-    @apply bg-bento-bg text-slate-100 antialiased;
+    @apply bg-bento-bg text-bento-text antialiased transition-colors duration-300;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }

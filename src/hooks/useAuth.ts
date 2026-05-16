@@ -5,9 +5,10 @@
 
 import { useEffect, useState } from 'react';
 import { auth, googleProvider, db } from '../lib/firebase.ts';
-import { onAuthStateChanged, signInWithPopup, signOut, User } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, User } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { UserProfile } from '../types.ts';
+import { toast } from 'react-hot-toast';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -15,6 +16,12 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Handle redirect result on mount
+    getRedirectResult(auth).catch((error) => {
+      console.error("Redirect login error:", error);
+      toast.error("Erro ao entrar com Google. Tente novamente.");
+    });
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       
@@ -53,9 +60,22 @@ export const useAuth = () => {
 
   const login = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
+      // Check if mobile (more strict popup blocking)
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      if (isMobile) {
+        await signInWithRedirect(auth, googleProvider);
+      } else {
+        await signInWithPopup(auth, googleProvider);
+      }
+    } catch (error: any) {
       console.error("Login failed:", error);
+      if (error.code === 'auth/popup-blocked') {
+        toast.error("O bloqueador de popups impediu o login. Tentando redirecionar...");
+        await signInWithRedirect(auth, googleProvider);
+      } else {
+        toast.error("Falha na autenticação. Verifique sua conexão.");
+      }
     }
   };
 

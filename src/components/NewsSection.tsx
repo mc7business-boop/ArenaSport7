@@ -8,10 +8,12 @@ import { MOCK_NEWS } from '../constants.ts';
 import { Share2, Bookmark, Flame, Calendar, User as UserIcon, ArrowRight, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils.ts';
+import { useI18n } from '../lib/i18n.ts';
 
 export const NewsSection: React.FC = () => {
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [filter, setFilter] = useState('All');
+  const { t } = useI18n();
 
   const categories = ['All', 'World Cup', 'Brazil', 'Transfers', 'Panini', 'Rare', 'Market'];
 
@@ -25,8 +27,8 @@ export const NewsSection: React.FC = () => {
         <div className="h-16 w-16 rounded-full bg-slate-900 flex items-center justify-center text-slate-700 mb-4">
           <Calendar size={32} />
         </div>
-        <h3 className="text-xl font-black italic uppercase text-slate-500">SEM NOTÍCIAS</h3>
-        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-2">VOLTE MAIS TARDE PARA ATUALIZAÇÕES</p>
+        <h3 className="text-xl font-black italic uppercase text-slate-500">{t('noNews')}</h3>
+        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-2">{t('checkBackLater')}</p>
       </div>
     );
   }
@@ -61,12 +63,12 @@ export const NewsSection: React.FC = () => {
       {/* Today Summary */}
       <div className="rounded-[2.5rem] bg-gradient-to-br from-blue-600/20 to-indigo-600/10 border border-blue-500/20 p-6 space-y-4">
         <div className="flex items-center justify-between">
-           <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400">HOJE NA COPA</h3>
+           <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400">{t('todayInCup')}</h3>
            <span className="text-[9px] font-bold text-slate-500 uppercase">16 MAI 2026</span>
         </div>
         <div className="grid grid-cols-2 gap-4">
            <div className="space-y-1">
-              <span className="text-[8px] font-black text-slate-500 uppercase">JOGOS DE HOJE</span>
+              <span className="text-[8px] font-black text-slate-500 uppercase">{t('gamesToday')}</span>
               <div className="flex items-center gap-2">
                  <span className="text-xl">🇧🇷</span>
                  <span className="text-[10px] font-black text-white">BRA x FRA</span>
@@ -74,7 +76,7 @@ export const NewsSection: React.FC = () => {
               </div>
            </div>
            <div className="space-y-1 text-right">
-              <span className="text-[8px] font-black text-slate-500 uppercase">TRADING TREND</span>
+              <span className="text-[8px] font-black text-slate-500 uppercase">{t('tradingTrend')}</span>
               <div className="flex items-center justify-end gap-2 text-yellow-500">
                  <span className="text-[10px] font-black">NEYMAR #10</span>
                  <TrendingUp size={12} />
@@ -114,8 +116,8 @@ export const NewsSection: React.FC = () => {
       {/* Trending News */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">ÚLTIMAS NOTÍCIAS</h3>
-          <button className="text-[10px] font-black text-blue-500 hover:underline">VER TODAS</button>
+          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">{t('latestNews')}</h3>
+          <button className="text-[10px] font-black text-blue-500 hover:underline">{t('viewAll')}</button>
         </div>
 
         <div className="space-y-4">

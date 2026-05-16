@@ -36,15 +36,22 @@ import {
   ShoppingBag,
   Info,
   ShieldCheck,
-  RefreshCw
+  RefreshCw,
+  Moon,
+  Sun,
+  Globe
 } from 'lucide-react';
 import { XP_VALUES, MOCK_ACHIEVEMENTS } from './constants.ts';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils.ts';
+import { useI18n, Language } from './lib/i18n.ts';
+import { useThemeStatus } from './context/ThemeContext.tsx';
 
 export default function App() {
   const { user, login, logout, loading: authLoading } = useAuth();
   const { stickers, stats, toggleOwned, addQuantity, parseAndAdd } = useStickers(user?.uid);
+  const { t, lang, setLang } = useI18n();
+  const { theme, toggleTheme } = useThemeStatus();
   
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
@@ -77,42 +84,42 @@ export default function App() {
     const list = stickers.filter(s => (s.quantity ?? 0) > 1).map(s => s.id).join(', ');
     const missing = stickers.filter(s => !s.owned).slice(0, 20).map(s => s.id).join(', ');
     
-    const message = `*Copa Sticker Manager 2026*\n\n🔄 *Tenho repetidas:*\n${list || 'Nenhuma'}\n\n🎯 *Preciso de:*\n${missing}${stickers.filter(s => !s.owned).length > 20 ? '... e outras' : ''}\n\n*Quer trocar?*`;
+    const message = `*${t('appTitle')} 2026*\n\n🔄 *${t('duplicates')}:*\n${list || t('none')}\n\n🎯 *${t('needed')}:*\n${missing}${stickers.filter(s => !s.owned).length > 20 ? `... ${t('others')}` : ''}\n\n*${t('wantTrade')}*`;
     const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };
 
   if (authLoading) {
     return (
-      <div className="flex flex-col h-screen items-center justify-center bg-[#06080F] text-white">
+      <div className="flex flex-col h-screen items-center justify-center bg-bento-bg text-white">
         <div className="h-16 w-16 animate-spin rounded-full border-4 border-yellow-500 border-t-transparent"></div>
-        <p className="mt-4 font-bold text-slate-500 italic">CARREGANDO ÁLBUM...</p>
+        <p className="mt-4 font-black text-slate-500 italic tracking-widest">{t('loading')}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#06080F] pb-32 text-slate-100 transition-colors selection:bg-yellow-500 selection:text-black">
+    <div className="min-h-screen bg-bento-bg pb-32 text-slate-800 dark:text-slate-100 transition-colors selection:bg-yellow-500 selection:text-black">
       <Toaster position="top-right" />
       
       {/* Dynamic Background Effects */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-20">
-        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-blue-600 blur-[120px] rounded-full"></div>
-        <div className="absolute top-[20%] -right-[10%] w-[35%] h-[35%] bg-yellow-600 blur-[120px] rounded-full"></div>
+      <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-30 dark:opacity-20">
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-blue-600/30 blur-[120px] rounded-full"></div>
+        <div className="absolute top-[20%] -right-[10%] w-[35%] h-[35%] bg-yellow-600/30 blur-[120px] rounded-full"></div>
       </div>
 
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-[#06080F]/60 px-6 py-4 backdrop-blur-2xl border-b border-slate-800/50">
+      <header className="sticky top-0 z-40 bg-white/60 dark:bg-bento-bg/60 px-6 py-4 backdrop-blur-2xl border-b border-slate-200 dark:border-slate-800/50">
         <div className="mx-auto flex max-w-lg items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-amber-600 text-black shadow-lg shadow-amber-900/40">
               <Trophy size={20} strokeWidth={2.5} />
             </div>
             <div>
-              <h1 className="text-lg font-black tracking-tighter text-white uppercase italic leading-none">MUNDIAL ECO</h1>
+              <h1 className="text-lg font-black tracking-tighter text-slate-900 dark:text-white uppercase italic leading-none">{t('appTitle')}</h1>
               <div className="flex items-center gap-1.5 mt-1">
-                 <div className="px-1.5 py-0.5 rounded-md bg-yellow-400 text-[7px] font-black text-black uppercase tracking-widest leading-none">PREMIUM</div>
-                 <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none">LVL 24</p>
+                 <div className="px-1.5 py-0.5 rounded-md bg-yellow-400 text-[7px] font-black text-black uppercase tracking-widest leading-none">{t('premium')}</div>
+                 <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none">{t('level')} 24</p>
               </div>
             </div>
           </div>
@@ -121,20 +128,20 @@ export default function App() {
             {!user ? (
               <button 
                 onClick={login}
-                className="flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-xs font-black text-black transition-all hover:bg-yellow-400 active:scale-95"
+                className="flex items-center gap-2 rounded-full bg-slate-900 dark:bg-white px-4 py-1.5 text-xs font-black text-white dark:text-black transition-all hover:bg-yellow-400 active:scale-95"
               >
                 <LogIn size={14} />
-                <span>ENTRAR</span>
+                <span>{t('enter')}</span>
               </button>
             ) : (
-              <div className="flex items-center gap-2 rounded-full bg-slate-800/80 border border-slate-700/50 p-1 pr-3">
-                <img src={user.photoURL || ''} alt="" className="h-6 w-6 rounded-full border border-slate-600" />
-                <span className="text-[10px] font-bold text-slate-300 max-w-[60px] truncate uppercase">{user.displayName?.split(' ')[0]}</span>
-                <button onClick={logout} className="text-slate-500 hover:text-red-400 transition-colors">
+              <div className="flex items-center gap-2 rounded-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 p-1 pr-3 shadow-sm">
+                <img src={user.photoURL || ''} alt="" className="h-6 w-6 rounded-full border border-slate-200 dark:border-slate-600" />
+                <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 max-w-[60px] truncate uppercase">{user.displayName?.split(' ')[0]}</span>
+                <button onClick={logout} className="text-slate-400 dark:text-slate-500 hover:text-red-500 transition-colors">
                   <LogOut size={12} />
                 </button>
               </div>
-            )}
+             )}
           </div>
         </div>
       </header>
@@ -156,11 +163,11 @@ export default function App() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 size={16} className="text-green-500" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">STATUS DO ÁLBUM</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('albumStatus')}</span>
                   </div>
                   <span className="text-[10px] font-black text-white">{(stats.owned / 980 * 100).toFixed(1)}%</span>
                 </div>
-                <h4 className="text-sm font-black text-white uppercase italic">VOCÊ PRECISA DE <span className="text-yellow-500">{stats.missing}</span> PARA COMPLETAR</h4>
+                <h4 className="text-sm font-black text-white uppercase italic">{t('needStickers', { count: stats.missing })}</h4>
                 <div className="h-2 w-full bg-slate-800 rounded-full mt-4 overflow-hidden">
                   <div className="h-full bg-green-500 transition-all duration-1000" style={{ width: `${(stats.owned / 980 * 100)}%` }}></div>
                 </div>
@@ -173,8 +180,8 @@ export default function App() {
                        <Zap size={24} fill="currentColor" />
                     </div>
                     <div>
-                       <h4 className="text-sm font-black uppercase italic text-white leading-none">STREAK DE 4 DIAS</h4>
-                       <p className="text-[9px] font-bold text-orange-200/60 uppercase tracking-widest mt-1">Colete hoje para ganhar +{XP_VALUES.STRIKE_DAILY} XP</p>
+                       <h4 className="text-sm font-black uppercase italic text-white leading-none">{t('streak', { days: 4 })}</h4>
+                       <p className="text-[9px] font-bold text-orange-200/60 uppercase tracking-widest mt-1">{t('collectToday', { xp: XP_VALUES.STRIKE_DAILY })}</p>
                     </div>
                  </div>
                  <div className="flex gap-1">
@@ -187,7 +194,7 @@ export default function App() {
               <section className="space-y-5">
                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
                   <TrendingUp size={14} />
-                  RARE STICKER RADAR
+                  {t('rareRadar')}
                 </h3>
                 <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
                   {[
@@ -208,7 +215,7 @@ export default function App() {
               <section className="space-y-5">
                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
                   <LayoutGrid size={14} />
-                  ACELERAR COLEÇÃO
+                  {t('accelerateTitle')}
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <button 
@@ -222,8 +229,8 @@ export default function App() {
                       <Camera size={24} />
                     </div>
                     <div className="text-left">
-                      <span className="block text-sm font-black uppercase italic leading-none">SCAN IA</span>
-                      <span className="text-[10px] font-medium opacity-70">Identificar figurinha</span>
+                      <span className="block text-sm font-black uppercase italic leading-none">{t('scanAI')}</span>
+                      <span className="text-[10px] font-medium opacity-70">{t('identifySticker')}</span>
                     </div>
                   </button>
 
@@ -235,8 +242,8 @@ export default function App() {
                       <MessageCircle size={24} />
                     </div>
                     <div className="text-left">
-                      <span className="block text-sm font-black uppercase italic leading-none">TROCAR</span>
-                      <span className="text-[10px] font-medium opacity-50">Lista via WhatsApp</span>
+                      <span className="block text-sm font-black uppercase italic leading-none">{t('trades')}</span>
+                      <span className="text-[10px] font-medium opacity-50">{t('tradeWhatsappDesc')}</span>
                     </div>
                   </button>
                 </div>
@@ -246,7 +253,7 @@ export default function App() {
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
                     <Trophy size={14} />
-                    ELITE DO FUTEBOL
+                    {t('eliteFootball')}
                   </h3>
                 </div>
                 <div className="space-y-4">
@@ -278,7 +285,7 @@ export default function App() {
                   onClick={() => setActiveTab('album')}
                   className="w-full rounded-2xl bg-white/[0.03] border border-slate-800/50 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 transition-all hover:bg-white/[0.05] hover:text-slate-300"
                 >
-                  VER TODAS AS 48 SELEÇÕES
+                  {t('viewAllNations')}
                 </button>
               </section>
             </motion.div>
@@ -304,16 +311,16 @@ export default function App() {
               className="space-y-8"
             >
               <div className="space-y-6">
-                <h2 className="text-3xl font-black italic uppercase tracking-tighter">COLEÇÃO 2026</h2>
+                <h2 className="text-3xl font-black italic uppercase tracking-tighter">{t('collection2026')}</h2>
                 
                 {/* Horizontal Album Selector */}
                 <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
                   {[
-                    { id: 'main', label: 'OFFICIAL' },
-                    { id: 'coca-cola', label: 'PROMO' },
-                    { id: 'specials', label: 'SPECIALS' },
-                    { id: 'legends', label: 'LEGENDS' },
-                    { id: 'all', label: 'VIEW ALL' }
+                    { id: 'main', label: t('official') },
+                    { id: 'coca-cola', label: t('promo') },
+                    { id: 'specials', label: t('specials') },
+                    { id: 'legends', label: t('legends') },
+                    { id: 'all', label: t('viewAll') }
                   ].map(tab => (
                     <button
                       key={tab.id}
@@ -335,7 +342,7 @@ export default function App() {
                     <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 transition-colors group-focus-within:text-yellow-500" size={18} />
                     <input 
                       type="text"
-                      placeholder="SEARCH BY NAME OR ID..."
+                      placeholder={t('searchPlaceholder')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full rounded-[2rem] border-none bg-slate-900/60 p-5 pl-14 text-xs font-bold uppercase tracking-widest shadow-2xl ring-1 ring-slate-800/50 transition-all focus:bg-slate-900 focus:ring-2 focus:ring-yellow-500/50 placeholder:text-slate-600"
@@ -349,7 +356,7 @@ export default function App() {
                         onChange={(e) => setTeamFilter(e.target.value)}
                         className="appearance-none rounded-2xl bg-slate-900/80 border border-slate-800 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-300 shadow-lg pr-12"
                       >
-                        <option value="all">ALL NATIONS</option>
+                        <option value="all">{t('allNations')}</option>
                         {TEAMS.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                       </select>
                       <Filter className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" size={12} />
@@ -361,10 +368,10 @@ export default function App() {
                         onChange={(e) => setStatusFilter(e.target.value)}
                         className="appearance-none rounded-2xl bg-slate-900/80 border border-slate-800 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-300 shadow-lg pr-12"
                       >
-                        <option value="all">STATUS: ANY</option>
-                        <option value="owned">COLLECTED</option>
-                        <option value="missing">MISSING</option>
-                        <option value="repeated">DUPLICATES</option>
+                        <option value="all">{t('anyStatus')}</option>
+                        <option value="owned">{t('collected')}</option>
+                        <option value="missing">{t('missing')}</option>
+                        <option value="repeated">{t('duplicates')}</option>
                       </select>
                       <CheckCircle2 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" size={12} />
                     </div>
@@ -384,8 +391,8 @@ export default function App() {
                     <Search size={32} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-black italic uppercase text-slate-500">NO STICKERS FOUND</h3>
-                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-2">TRY ADJUSTING YOUR FILTERS</p>
+                    <h3 className="text-xl font-black italic uppercase text-slate-500">{t('noStickersFound')}</h3>
+                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-2">{t('tryAdjusting')}</p>
                   </div>
                 </div>
               )}
@@ -401,7 +408,7 @@ export default function App() {
               className="space-y-10 pb-10"
             >
               <div className="flex items-center justify-between">
-                <h2 className="text-3xl font-black italic uppercase tracking-tighter">TRADE HUB</h2>
+                <h2 className="text-3xl font-black italic uppercase tracking-tighter">{t('tradeHub')}</h2>
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-500">
                    <Repeat size={20} />
                 </div>
@@ -414,17 +421,17 @@ export default function App() {
                  <div className="space-y-6">
                     <div>
                        <h3 className="text-2xl font-black italic leading-none uppercase">Matchmaker AI</h3>
-                       <p className="text-[10px] text-indigo-200 uppercase tracking-[0.2em] font-bold mt-2">ENCONTRE TROCAS PERFEITAS PRÓXIMAS A VOCÊ</p>
+                       <p className="text-[10px] text-indigo-200 uppercase tracking-[0.2em] font-bold mt-2">{t('perfectTrades')}</p>
                     </div>
 
                     <div className="flex gap-4">
                        <div className="flex-1 bg-white/10 rounded-2xl p-4 backdrop-blur-md">
-                          <span className="text-[8px] font-black opacity-50 uppercase block mb-1">VOCÊ TEM</span>
-                          <span className="text-lg font-black">{stats.repeated} <span className="text-[10px] opacity-70">REPETIDAS</span></span>
+                          <span className="text-[8px] font-black opacity-50 uppercase block mb-1">{t('collected')}</span>
+                          <span className="text-lg font-black">{stats.repeated} <span className="text-[10px] opacity-70">{t('duplicates')}</span></span>
                        </div>
                        <div className="flex-1 bg-white/10 rounded-2xl p-4 backdrop-blur-md">
-                          <span className="text-[8px] font-black opacity-50 uppercase block mb-1">VOCÊ PRECISA</span>
-                          <span className="text-lg font-black">{stats.missing} <span className="text-[10px] opacity-70">FALTANDO</span></span>
+                          <span className="text-[8px] font-black opacity-50 uppercase block mb-1">{t('missing')}</span>
+                          <span className="text-lg font-black">{stats.missing} <span className="text-[10px] opacity-70">{t('missing')}</span></span>
                        </div>
                     </div>
 
@@ -433,13 +440,13 @@ export default function App() {
                       className="flex w-full items-center justify-center gap-3 rounded-2xl bg-white py-4 font-black text-indigo-900 transition-all hover:bg-yellow-400 active:scale-95 shadow-xl group"
                     >
                       <Share2 size={18} className="group-hover:rotate-12 transition-transform" />
-                      <span className="text-xs tracking-widest uppercase">EXPORTAR LISTA DE TROCAS</span>
+                      <span className="text-xs tracking-widest uppercase">{t('exportList')}</span>
                     </button>
 
                     <div className="pt-4 border-t border-white/10 flex items-center justify-between">
                        <div>
-                          <p className="text-[9px] font-black text-indigo-200 uppercase tracking-widest">MINHA TRADE CARD QR</p>
-                          <p className="text-[7px] text-white/50 uppercase mt-1">Gere um QR Code para trocas presenciais</p>
+                          <p className="text-[9px] font-black text-indigo-200 uppercase tracking-widest">{t('myTradeCard')}</p>
+                          <p className="text-[7px] text-white/50 uppercase mt-1">{t('tradeCardDesc')}</p>
                        </div>
                        <button 
                          onClick={() => setIsTradeCardOpen(true)}
@@ -455,14 +462,14 @@ export default function App() {
               <div className="rounded-3xl bg-slate-900/40 p-4 border border-slate-800/50 border-dashed text-center">
                  <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">ADVERTISEMENT / PROMOÇÃO</p>
                  <div className="h-20 flex items-center justify-center mt-2 group cursor-pointer">
-                    <span className="text-xs font-black text-slate-700 group-hover:text-yellow-500 transition-colors uppercase italic">COMPRE PACOTES OFICIAIS PANINI</span>
+                    <span className="text-xs font-black text-slate-700 group-hover:text-yellow-500 transition-colors uppercase italic">{t('buyPanini')}</span>
                  </div>
               </div>
 
               {/* Nearby Collectors Simulation */}
               <div className="space-y-5">
                  <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">COLECIONADORES PRÓXIMOS</h3>
+                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">{t('nearbyCollectors')}</h3>
                     <button onClick={() => setIsPrivacyModalOpen(true)} className="text-slate-500 hover:text-blue-500 transition-colors">
                        <Info size={14} />
                     </button>
@@ -471,7 +478,7 @@ export default function App() {
                  <div className="flex items-center justify-between rounded-2xl bg-slate-900 shadow-lg p-4 border border-slate-800">
                     <div className="flex items-center gap-3">
                        <ShieldCheck size={16} className="text-blue-500" />
-                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">VISIBILIDADE PÚBLICA</span>
+                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('publicVisibility')}</span>
                     </div>
                     <button 
                       onClick={() => setShowLocation(!showLocation)}
@@ -509,8 +516,8 @@ export default function App() {
                              <span className="text-[9px] font-bold text-slate-500 italic uppercase">{player.dist}</span>
                           </div>
                           <div className="mt-2 flex gap-3">
-                             <span className="text-[9px] font-black text-green-500 bg-green-500/10 px-2 py-0.5 rounded-md uppercase">TEM {player.has}</span>
-                             <span className="text-[9px] font-black text-red-500 bg-red-500/10 px-2 py-0.5 rounded-md uppercase">QUER {player.needs}</span>
+                             <span className="text-[9px] font-black text-green-500 bg-green-500/10 px-2 py-0.5 rounded-md uppercase">{t('hasCount', { count: player.has })}</span>
+                             <span className="text-[9px] font-black text-red-500 bg-red-500/10 px-2 py-0.5 rounded-md uppercase">{t('wantsCount', { count: player.needs })}</span>
                           </div>
                        </div>
                        <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-400">
@@ -521,16 +528,16 @@ export default function App() {
                  ) : (
                    <div className="py-10 text-center space-y-4 rounded-3xl border border-dashed border-slate-800">
                       <ShieldCheck size={40} className="mx-auto text-slate-700" />
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-10">Sua localização está oculta. Ative para descobrir outros colecionadores.</p>
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-10">{t('locationHidden')}</p>
                    </div>
                  )}
               </div>
             </motion.div>
           )}
 
-          {activeTab === 'settings' && (
+           {activeTab === 'settings' && (
             <motion.div key="settings" className="space-y-8 pb-10">
-              <h2 className="text-3xl font-black italic uppercase tracking-tighter">PERFIL DO COLECIONADOR</h2>
+              <h2 className="text-3xl font-black italic uppercase tracking-tighter">{t('collectorProfile')}</h2>
               
               <div className="flex flex-col items-center bg-slate-900/40 p-10 rounded-[3rem] border border-slate-800/80 shadow-2xl space-y-6">
                  <div className="relative">
@@ -542,16 +549,16 @@ export default function App() {
                  <div className="text-center">
                     <h3 className="text-2xl font-black text-white italic uppercase tracking-tight">{user?.displayName || 'USER_NAME'}</h3>
                     <div className="flex items-center justify-center gap-2 mt-1">
-                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">RANK #1,240 GLOBAL 🌍</span>
+                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('globalRank')}</span>
                        <span className="h-1 w-1 rounded-full bg-slate-700"></span>
-                       <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">MASTER COLLECTOR</span>
+                       <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">{t('masterCollector')}</span>
                     </div>
                  </div>
 
                  {/* XP Progress Bar */}
                  <div className="w-full space-y-2">
                     <div className="flex justify-between text-[8px] font-black uppercase tracking-[0.2em] text-slate-500">
-                       <span>LEVEL 24</span>
+                       <span>{t('level')} 24</span>
                        <span>850 / 1200 XP</span>
                     </div>
                     <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
@@ -562,21 +569,21 @@ export default function App() {
                  <div className="flex gap-8 w-full pt-4 border-t border-slate-800/50">
                     <div className="flex-1 text-center">
                        <div className="text-xl font-black text-yellow-500">{stats.owned}</div>
-                       <div className="text-[8px] font-black text-slate-600 uppercase tracking-widest">OBTIDAS</div>
+                       <div className="text-[8px] font-black text-slate-600 uppercase tracking-widest">{t('collected')}</div>
                     </div>
                     <div className="flex-1 text-center border-x border-slate-800/50">
                        <div className="text-xl font-black text-blue-500">{stats.repeated}</div>
-                       <div className="text-[8px] font-black text-slate-600 uppercase tracking-widest">REPETIDAS</div>
+                       <div className="text-[8px] font-black text-slate-600 uppercase tracking-widest">{t('duplicates')}</div>
                     </div>
                     <div className="flex-1 text-center">
                        <div className="text-xl font-black text-red-500">{stats.missing}</div>
-                       <div className="text-[8px] font-black text-slate-600 uppercase tracking-widest">FALTAM</div>
+                       <div className="text-[8px] font-black text-slate-600 uppercase tracking-widest">{t('needed')}</div>
                     </div>
                  </div>
               </div>
 
               <div className="space-y-4">
-                 <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">CONQUISTAS RECENTES</h4>
+                 <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">{t('achievements')}</h4>
                  <div className="grid grid-cols-2 gap-3">
                     {MOCK_ACHIEVEMENTS.map(ach => (
                       <div key={ach.id} className={cn(
@@ -592,43 +599,43 @@ export default function App() {
               </div>
 
               <div className="space-y-4">
-                 <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">MARKETPLACE & TOOLS</h4>
+                 <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">{t('marketplaceTitle')}</h4>
                  <div className="divide-y divide-slate-800/50 rounded-[2.5rem] bg-slate-900/40 border border-slate-800/80 overflow-hidden shadow-2xl">
                     <button className="flex w-full items-center justify-between p-7 transition-colors hover:bg-white/[0.03]">
                       <div className="flex items-center space-x-4">
                         <div className="bg-yellow-500/10 p-3 rounded-2xl text-yellow-500"><ShoppingBag size={20} /></div>
-                        <span className="font-black text-xs uppercase tracking-tight">PEDIR ÁLBUM FÍSICO (AFFILIATE)</span>
+                        <span className="font-black text-xs uppercase tracking-tight">{t('buyAlbum')}</span>
                       </div>
                     </button>
                     <button className="flex w-full items-center justify-between p-7 transition-colors hover:bg-white/[0.03]">
                       <div className="flex items-center space-x-4">
                         <div className="bg-blue-500/10 p-3 rounded-2xl text-blue-500"><TrendingUp size={20} /></div>
-                        <span className="font-black text-xs uppercase tracking-tight">MARKET INSIGHTS (PREMIUM)</span>
+                        <span className="font-black text-xs uppercase tracking-tight">{t('marketInsights')}</span>
                       </div>
                     </button>
                     <button onClick={() => toast.success('Exportando para PDF...')} className="flex w-full items-center justify-between p-7 transition-colors hover:bg-white/[0.03]">
                       <div className="flex items-center space-x-4">
                         <div className="bg-red-500/10 p-3 rounded-2xl text-red-400"><Download size={20} /></div>
-                        <span className="font-black text-xs uppercase tracking-tight">EXPORTAR PDF (CHECKLIST)</span>
+                        <span className="font-black text-xs uppercase tracking-tight">{t('exportPDF')}</span>
                       </div>
                     </button>
                     <button onClick={() => toast.success('Exportando Excel...')} className="flex w-full items-center justify-between p-7 transition-colors hover:bg-white/[0.03]">
                       <div className="flex items-center space-x-4">
                         <div className="bg-green-500/10 p-3 rounded-2xl text-green-400"><Download size={20} /></div>
-                        <span className="font-black text-xs uppercase tracking-tight">EXPORTAR EXCEL (.XLSX)</span>
+                        <span className="font-black text-xs uppercase tracking-tight">{t('exportExcel')}</span>
                       </div>
                     </button>
                     <button className="flex w-full items-center justify-between p-7 transition-colors hover:bg-white/[0.03]">
                       <div className="flex items-center space-x-4">
                         <div className="bg-slate-700/20 p-3 rounded-2xl text-slate-400"><Github size={20} /></div>
-                        <span className="font-black text-xs uppercase tracking-tight">IMPORTAR BACKUP</span>
+                        <span className="font-black text-xs uppercase tracking-tight">{t('importBackup')}</span>
                       </div>
                     </button>
                     {user && (
                       <button onClick={logout} className="flex w-full items-center justify-between p-7 transition-colors hover:bg-red-500/5">
                         <div className="flex items-center space-x-4">
                           <div className="bg-red-900/20 p-3 rounded-2xl text-red-500"><LogOut size={20} /></div>
-                          <span className="font-black text-xs uppercase tracking-tight text-red-500">SAIR DA CONTA</span>
+                          <span className="font-black text-xs uppercase tracking-tight text-red-500">{t('logoutAccount')}</span>
                         </div>
                       </button>
                     )}
@@ -641,7 +648,7 @@ export default function App() {
 
       {/* Floating Action Buttons */}
       <div className="fixed right-6 bottom-32 flex flex-col gap-3 z-30">
-        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setIsScannerOpen(true)} className="h-14 w-14 rounded-full bg-blue-600 text-white shadow-2xl shadow-blue-900/40 flex items-center justify-center border-4 border-[#06080F]">
+        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setIsScannerOpen(true)} className="h-14 w-14 rounded-full bg-blue-600 text-white shadow-2xl shadow-blue-900/40 flex items-center justify-center border-4 border-bento-bg">
           <Camera size={24} />
         </motion.button>
       </div>
@@ -665,15 +672,15 @@ export default function App() {
                   <ShieldCheck size={32} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-black italic uppercase">PRIVACIDADE E SEGURANÇA</h3>
+                  <h3 className="text-xl font-black italic uppercase">{t('privacySettings')}</h3>
                   <div className="text-xs text-slate-400 font-medium text-left space-y-4 mt-6 leading-relaxed">
-                    <p>• Colecionadores próximos são identificados apenas pela região aproximada.</p>
-                    <p>• Seu endereço exato nunca é compartilhado ou exibido para outros usuários.</p>
-                    <p>• Você tem controle total sobre sua visibilidade no Trade Hub.</p>
-                    <p>• Suas informações pessoais e dados de contato são protegidos e criptografados.</p>
+                    <p>• {t('privacyNote1')}</p>
+                    <p>• {t('privacyNote2')}</p>
+                    <p>• {t('privacyNote3')}</p>
+                    <p>• {t('privacyNote4')}</p>
                   </div>
                 </div>
-                <button onClick={() => setIsPrivacyModalOpen(false)} className="w-full rounded-2xl bg-blue-600 py-4 text-xs font-black uppercase tracking-widest text-white shadow-lg active:scale-95 transition-all">ENTENDI</button>
+                <button onClick={() => setIsPrivacyModalOpen(false)} className="w-full rounded-2xl bg-blue-600 py-4 text-xs font-black uppercase tracking-widest text-white shadow-lg active:scale-95 transition-all">{t('understood')}</button>
               </div>
             </motion.div>
           </div>
@@ -689,35 +696,35 @@ export default function App() {
                 <Trophy size={160} />
               </div>
               
-              <div className="relative z-10 flex flex-col items-center text-center space-y-6">
+                <div className="relative z-10 flex flex-col items-center text-center space-y-6">
                 <div className="h-20 w-20 rounded-full border-4 border-white overflow-hidden shadow-xl">
                    <img src={user?.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'} alt="" className="h-full w-full object-cover" />
                 </div>
                 <div>
                    <h3 className="text-2xl font-black italic uppercase text-white leading-none">{user?.displayName || 'COLLECTOR'}</h3>
-                   <span className="text-[10px] font-black text-indigo-200 uppercase tracking-[0.3em] mt-2 block">OFFICIAL TRADE PASS</span>
+                   <span className="text-[10px] font-black text-indigo-200 uppercase tracking-[0.3em] mt-2 block">{t('officialTradePass')}</span>
                 </div>
 
                 <div className="w-full bg-white rounded-[2rem] p-8 mt-4 shadow-2xl flex flex-col items-center gap-6">
                    <div className="h-48 w-48 bg-slate-100 rounded-2xl flex items-center justify-center border-4 border-slate-200 shadow-inner">
                       <div className="flex flex-col items-center text-slate-300">
                          <LayoutGrid size={80} strokeWidth={1} />
-                         <span className="text-[8px] font-black uppercase tracking-widest mt-2">QR GENERATED</span>
+                         <span className="text-[8px] font-black uppercase tracking-widest mt-2">{t('qrGenerated')}</span>
                       </div>
                    </div>
                    <div className="grid grid-cols-2 gap-4 w-full">
                       <div className="text-center">
-                         <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">TENHO</p>
+                         <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{t('has')}</p>
                          <p className="text-xl font-black text-indigo-600">{stats.repeated}</p>
                       </div>
                       <div className="text-center">
-                         <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">QUERO</p>
+                         <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{t('wants')}</p>
                          <p className="text-xl font-black text-indigo-600">{stats.missing}</p>
                       </div>
                    </div>
                 </div>
 
-                <button onClick={() => setIsTradeCardOpen(false)} className="w-full rounded-2xl bg-white/10 border border-white/20 py-4 text-xs font-black uppercase tracking-widest text-white active:scale-95 transition-all">CONCLUÍDO</button>
+                <button onClick={() => setIsTradeCardOpen(false)} className="w-full rounded-2xl bg-white/10 border border-white/20 py-4 text-xs font-black uppercase tracking-widest text-white active:scale-95 transition-all">{t('completed')}</button>
               </div>
             </motion.div>
           </div>
@@ -728,6 +735,7 @@ export default function App() {
 }
 
 const ScannerModal = ({ isOpen, onClose, onDetected }: any) => {
+  const { t } = useI18n();
   const [scanning, setScanning] = useState(false);
   const [confidence, setConfidence] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -764,19 +772,19 @@ const ScannerModal = ({ isOpen, onClose, onDetected }: any) => {
         setTimeout(() => {
           if (data.stickerId) {
             onDetected(data.stickerId);
-            toast.success(`Figurinha ${data.stickerId} identificada!`, { 
+            toast.success(t('stickerIdentified', { id: data.stickerId }), { 
               icon: '🎯',
               style: { background: '#1E293B', color: '#fff', fontWeight: 'bold' }
             });
             onClose();
           } else {
-            setError("Não foi possível identificar. Tente outra foto.");
+            setError(t('noIdentify'));
           }
           setScanning(false);
         }, 500);
       } catch (err) {
         clearInterval(timer);
-        setError("Erro no servidor de IA.");
+        setError(t('serverError'));
         setScanning(false);
       }
     };
@@ -785,12 +793,12 @@ const ScannerModal = ({ isOpen, onClose, onDetected }: any) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-[#06080F]/95 backdrop-blur-2xl" />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-bento-bg/95 backdrop-blur-2xl" />
       <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }} className="relative w-full h-full max-w-lg flex flex-col items-center justify-center p-8">
         
         {/* Scanner Overlay UI */}
-        <div className="relative w-full aspect-square max-w-xs overflow-hidden rounded-[3rem] border-2 border-slate-700/50 bg-slate-900 shadow-2xl">
-           <div className="absolute inset-0 border-[40px] border-[#06080F]/40 pointer-events-none"></div>
+        <div className="relative w-full aspect-square max-w-xs overflow-hidden rounded-[3rem] border-2 border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 shadow-2xl">
+           <div className="absolute inset-0 border-[40px] border-black/10 dark:border-black/40 pointer-events-none"></div>
            
            {/* Corner Borders */}
            <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-yellow-500 rounded-tl-2xl"></div>
@@ -811,12 +819,12 @@ const ScannerModal = ({ isOpen, onClose, onDetected }: any) => {
               {!scanning && !error ? (
                 <>
                   <Camera className="text-yellow-500 mb-4" size={48} strokeWidth={1.5} />
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">POSICIONE A FIGURINHA</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">{t('positionSticker')}</p>
                 </>
               ) : scanning ? (
                 <div className="space-y-4">
                    <div className="text-5xl font-black italic text-white tracking-tighter">{confidence}%</div>
-                   <p className="text-[10px] font-black uppercase tracking-widest text-yellow-500">IA ANALISANDO...</p>
+                   <p className="text-[10px] font-black uppercase tracking-widest text-yellow-500">{t('aiAnalyzing')}</p>
                 </div>
               ) : (
                 <div className="space-y-4 px-6 text-red-500">
@@ -832,13 +840,13 @@ const ScannerModal = ({ isOpen, onClose, onDetected }: any) => {
         </div>
 
         <div className="mt-12 text-center space-y-6">
-           <h3 className="text-2xl font-black italic uppercase italic tracking-tighter text-white">IA VISION SCANNER</h3>
+           <h3 className="text-2xl font-black italic uppercase italic tracking-tighter text-white">{t('iaScanner')}</h3>
            <p className="text-xs text-slate-500 font-bold max-w-xs mx-auto">
-             Nossa rede neural identifica automaticamente o número, seleção e raridade da figurinha em milissegundos.
+             {t('iaScannerDesc')}
            </p>
            
            <div className="flex gap-4 justify-center">
-              <button onClick={onClose} className="px-8 h-12 rounded-full bg-white text-black font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all">FECHAR SCANNER</button>
+              <button onClick={onClose} className="px-8 h-12 rounded-full bg-white text-black font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all">{t('closeScanner')}</button>
               {error && (
                 <button className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-500 text-black shadow-lg shadow-yellow-900/40 relative">
                   <RefreshCw size={20} />
